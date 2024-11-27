@@ -1,3 +1,4 @@
+
 # 2.2. Configuration de l'interface
 
 ## 1. Configuration de tun0
@@ -39,3 +40,55 @@ les fichier de capture sont disponible dans partage/wireshark(fc00:1234:ffff::10
 - Le paquet doit donc être envoyé sur l'interface tun0
 - C'est pourquoi on le voit dans Wireshark
 - Mais comme il n'y a pas de programme pour le traiter, il n'y a pas de réponse
+
+# 2.3. Récupération des paquets - Réponses détaillées
+
+## 1. Implémentation de la fonction copy_data
+
+```python
+def copy_data(src_fd, dst_fd):
+    """
+    Cette fonction:
+    1. Lit en continu les paquets depuis l'interface TUN (src_fd)
+    2. Les copie vers la destination (dst_fd)
+    """
+    BUFFER_SIZE = 2048  # Taille maximale d'un paquet
+    
+    while True:
+        try:
+            # Attend qu'il y ait des données à lire
+            ready_to_read, _, _ = select.select([src_fd], [], [])
+            
+            if src_fd in ready_to_read:
+                # Lit les données depuis l'interface TUN
+                data = os.read(src_fd, BUFFER_SIZE)
+                if data:
+                    # Écrit les données vers la destination
+                    os.write(dst_fd, data)
+        except KeyboardInterrupt:
+            print("\nArrêt de la copie des paquets")
+            break
+        except Exception as e:
+            print(f"Erreur: {e}", file=sys.stderr)
+            break
+```
+
+## 2. Résultats des tests ping6
+
+* `ping6 fc00:1234:ffff::1` : Aucun affichage car ces paquets sont traités directement par le noyau Linux (adresse locale).
+* `ping6 fc00:1234:ffff::10` : Affichage des paquets car cette adresse est inconnue du noyau.
+
+## 3. Comparaison avec Wireshark
+
+* Les paquets visibles dans Wireshark correspondent exactement à ceux affichés par notre programme
+* Les deux outils capturent les mêmes paquets car ils observent la même interface tun0
+* On voit principalement des paquets ICMPv6 (ping/echo request)
+les fichier de capture sont disponible dans partage/notes.txt
+
+## 4. Option IFF_NO_PI
+
+* Sans IFF_NO_PI : Les paquets commencent par 4 octets d'en-tête (`00 00 86 dd`)
+* Avec IFF_NO_PI : Les paquets commencent directement par l'en-tête IP (`60...`)
+L'option IFF_NO_PI supprime l'en-tête Protocol Information, donnant accès directement aux paquets IP bruts.
+
+

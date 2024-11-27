@@ -11,6 +11,11 @@ NetworkManager:
 ip route del default:
   cmd:
     - run
+    
+## Configuration IPv6
+net.ipv6.conf.all.disable_ipv6:
+  sysctl.present:
+    - value: 0
 
 ##Configuration de VM1
 eth1:
