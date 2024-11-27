@@ -16,9 +16,7 @@ ip -6 addr show tun0
 ## 2. Modification du routage
 - Sur VM1 : Aucune modification nécessaire car elle n'avait pas de route spécifique via VM2-6
 - Sur VM1-6 : Il faut supprimer la route statique qui passait par VM2-6 car cette route n'est plus valide
-  ```bash
-  sudo ip -6 route del fc00:1234:4::/64 via [ancienne_adresse_VM2-6]
-  ```
+
 
 ## 3. Test ping6 fc00:1234:ffff::1
 - Aucune capture visible sur Wireshark
@@ -26,6 +24,7 @@ ip -6 addr show tun0
 ## 4. Test ping6 fc00:1234:ffff::10
 - Capture Wireshark montre des requêtes ICMPv6 Echo Request sans réponse
 - Les paquets sont visibles avec la source fc00:1234:ffff::1 et la destination fc00:1234:ffff::10
+les fichier de capture sont disponible dans partage/wireshark(fc00:1234:ffff::10).txt et wireshark(fc00:1234:ffff::10).csv
 
 ## 5. Explication de la différence de comportement
 
