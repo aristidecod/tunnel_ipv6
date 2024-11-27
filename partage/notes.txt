@@ -1,0 +1,22 @@
+debian-tp@VM1:/vagrant$ sudo ./configure-tun.sh 
+5: tun0: <POINTOPOINT,MULTICAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UNKNOWN group default qlen 500
+    inet6 fc00:1234:ffff::1/64 scope global 
+       valid_lft forever preferred_lft forever
+    inet6 fe80::cd3c:d961:831:20ca/64 scope link stable-privacy 
+       valid_lft forever preferred_lft forever
+debian-tp@VM1:/vagrant$ ping6 fc00:1234:ffff::1
+PING fc00:1234:ffff::1(fc00:1234:ffff::1) 56 data bytes
+64 bytes from fc00:1234:ffff::1: icmp_seq=1 ttl=64 time=0.058 ms
+64 bytes from fc00:1234:ffff::1: icmp_seq=2 ttl=64 time=0.056 ms
+64 bytes from fc00:1234:ffff::1: icmp_seq=3 ttl=64 time=0.038 ms
+64 bytes from fc00:1234:ffff::1: icmp_seq=4 ttl=64 time=0.054 ms
+^C
+--- fc00:1234:ffff::1 ping statistics ---
+4 packets transmitted, 4 received, 0% packet loss, time 3053ms
+rtt min/avg/max/mdev = 0.038/0.051/0.058/0.007 ms
+debian-tp@VM1:/vagrant$ ping6 fc00:1234:ffff::10
+PING fc00:1234:ffff::10(fc00:1234:ffff::10) 56 data bytes
+^C
+--- fc00:1234:ffff::10 ping statistics ---
+4 packets transmitted, 0 received, 100% packet loss, time 3068ms
+

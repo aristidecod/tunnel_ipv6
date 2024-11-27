@@ -1,0 +1,1 @@
+{"virtualbox":{"/vagrant":{"owner":"debian-tp","guestpath":"/vagrant","hostpath":"/amuhome/o24014442/reseaux/tp3/VM1","disabled":false,"__vagrantfile":true},"/mnt/partage":{"create":true,"owner":"debian-tp","guestpath":"/mnt/partage","hostpath":"/amuhome/o24014442/reseaux/tp3/partage","disabled":false,"__vagrantfile":true}}}
