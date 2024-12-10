@@ -86,4 +86,151 @@ debian-tp@VM1:/vagrant$ sudo python3 tunalloc.py tun0 | hexdump -C
 00000140  00 00 00 00 00 00 00 01  fc 00 12 34 ff ff 00 00  |...........4....|
 00000150  00 00 00 00 00 00 00 10  80 00 1e 3e 86 c0 00 03  |...........>....|
 00000160  01 92 47 67 00 00 00 00  b4 3c 02 00 00 00 00 00  |..Gg.....<......|
-00000170  10 11 12 13 14 15 16 17  18 19 1a 1b 1c 1d 1e 1f  |................|
+00000170  10 11 12 13 
+
+14 15 16 17  18 19 1a 1b 1c 1d 1e 1f  |................|
+
+
+
+
+
+debian-tp@VM1-6:~$ sudo ip -6 route add fc00:1234:4::/64 via fc00:1234:ffff::1 dev eth1
+[sudo] Mot de passe de debian-tp : 
+RTNETLINK answers: No route to host
+debian-tp@VM1-6:~$ ip -6 route 
+fc00:1234:3::/64 dev eth1 proto kernel metric 256 pref medium
+fc00:1234:ffff::/64 via fc00:1234:3::1 dev eth1 metric 1024 pref medium
+fe80::/64 dev eth1 proto kernel metric 1024 pref medium
+
+
+
+
+debian-tp@VM1-6:~$ ping6 fc00:1234:ffff::1
+PING fc00:1234:ffff::1(fc00:1234:ffff::1) 56 data bytes
+64 bytes from fc00:1234:ffff::1: icmp_seq=1 ttl=64 time=0.837 ms
+64 bytes from fc00:1234:ffff::1: icmp_seq=2 ttl=64 time=0.815 ms
+64 bytes from fc00:1234:ffff::1: icmp_seq=3 ttl=64 time=0.712 ms
+^C
+--- fc00:1234:ffff::1 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2013ms
+rtt min/avg/max/mdev = 0.712/0.788/0.837/0.054 ms
+debian-tp@VM1-6:~$ sudo ip -6 route add fc00:1234:4::/64 via fc00:1234:ffff::1 dev eth1
+RTNETLINK answers: No route to host
+
+
+
+ sudo ip -6 route add fc00:1234:4::/64 via tun0
+Error: inet6 address is expected rather than "tun0".
+
+
+
+
+debian-tp@VM1:/vagrant$ ip -6 route
+fc00:1234:3::/64 dev eth2 proto kernel metric 256 pref medium
+fc00:1234:4::/64 dev tun0 metric 1024 pref medium
+fc00:1234:ffff::/64 dev tun0 proto kernel metric 256 pref medium
+fe80::/64 dev eth0 proto kernel metric 256 pref medium
+fe80::/64 dev tun0 proto kernel metric 256 pref medium
+
+# Activer le forwarding IPv6
+sudo sysctl -w net.ipv6.conf.all.forwarding=1
+ip link show tun0
+
+sudo python3 tunalloc.py tun0 | hexdump -C | sudo python3 client.py <IP_VM3>
+
+
+
+sudo python3 client.py 172.16.2.163
+[sudo] Mot de passe de debian-tp : 
+Connexion au serveur 172.16.2.163...
+Erreur: [Errno 111] Connection refused
+
+# Sur VM3
+sudo netstat -tulpn | grep 123
+# Sur VM3
+sudo iptables -A INPUT -p tcp --dport 123 -j ACCEPT
+nc -v 172.16.2.163 123
+
+debian-tp@VM1:/mnt/partage$ nc -v 172.16.2.163 123
+172.16.2.163: inverse host lookup failed: Unknown host
+(UNKNOWN) [172.16.2.163] 123 (?) : Connection refused
+
+
+sudo netstat -tulpn | grep 123
+debian-tp@VM3-6:/mnt/partage$ sudo netstat -tulpn | grep 123
+[sudo] Mot de passe de debian-tp : 
+tcp        0      0 0.0.0.0:123             0.0.0.0:*               LISTEN      2155/python3        
+debian-tp@VM3-6:/mnt/partage$ 
+
+sudo iptables -L
+
+
+debian-tp@VM3-6:/vagrant$ sudo python3 server.py 
+Démarrage du serveur sur le port 123...
+^CTraceback (most recent call last):
+  File "/vagrant/server.py", line 6, in <module>
+    ext_out(123)
+  File "/vagrant/extremite.py", line 15, in ext_out
+    client, addr = server.accept()
+                   ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/socket.py", line 294, in accept
+    fd, addr = self._accept()
+               ^^^^^^^^^^^^^^
+KeyboardInterrupt
+
+
+debian-tp@VM3-6:/vagrant$ sudo python3 server.py 
+[sudo] Mot de passe de debian-tp : 
+Désolé, essayez de nouveau.
+[sudo] Mot de passe de debian-tp : 
+Démarrage du serveur sur le port 123...
+^CTraceback (most recent call last):
+  File "/vagrant/server.py", line 6, in <module>
+    ext_out(123)
+  File "/vagrant/extremite.py", line 15, in ext_out
+    client, addr = server.accept()
+                   ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/socket.py", line 294, in accept
+    fd, addr = self._accept()
+               ^^^^^^^^^^^^^^
+KeyboardInterrupt
+
+debian-tp@VM1:/mnt/partage$ nc -v 172.16.2.163 123
+172.16.2.163: inverse host lookup failed: Unknown host
+(UNKNOWN) [172.16.2.163] 123 (?) : Connection refused
+debian-tp@VM1:/mnt/partage$ sudo python3 client.py 172.16.2.163
+Connexion au serveur 172.16.2.163...
+Erreur: [Errno 111] Connection refused
+
+
+debian-tp@VM1:/mnt/partage$ 
+
+
+
+
+
+debian-tp@VM3:/mnt/partage$ ip link show
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+    link/ether 08:00:27:6b:55:2b brd ff:ff:ff:ff:ff:ff
+    altname enp0s3
+3: eth1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+    link/ether 08:00:27:df:cd:dd brd ff:ff:ff:ff:ff:ff
+    altname enp0s8
+4: eth2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+    link/ether 08:00:27:48:78:43 brd ff:ff:ff:ff:ff:ff
+    altname enp0s9
+6: tun0: <POINTOPOINT,MULTICAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UNKNOWN mode DEFAULT group default qlen 500
+    link/none
+*
+
+
+
+debian-tp@VM3:/vagrant$ ip -6 route
+fc00:1234:3::/64 dev tun0 metric 1024 pref medium
+fc00:1234:4::/64 dev eth2 metric 1024 pref medium
+fc00:1234:ffff::/64 dev tun0 proto kernel metric 256 pref medium
+fe80::/64 dev eth0 proto kernel metric 256 pref medium
+fe80::/64 dev tun0 proto kernel metric 256 pref medium
+ 
