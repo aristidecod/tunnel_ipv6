@@ -24,6 +24,7 @@ eth1:
     - ipv6_autoconf: no
     - ipv6ipaddr: fc00:1234:3::16
     - ipv6netmask: 64
+   
 
 
 

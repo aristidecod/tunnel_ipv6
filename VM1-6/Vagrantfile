@@ -11,8 +11,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box = "m1reseaux"
 
   # Ajout d'une interface réseau (privée)
-  config.vm.network "private_network", ip:"0.0.0.0", auto_config: false, virtualbox__intnet: "LAN1-6" 
-
+  config.vm.network "private_network", ip:"0.0.0.0", auto_config: false, virtualbox__intnet: "LAN3-6" 
 
 ##### NE PAS MODIFIER CETTE PARTIE
   config.vm.hostname = File.basename(Dir.getwd)
