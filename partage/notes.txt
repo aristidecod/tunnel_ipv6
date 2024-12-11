@@ -233,4 +233,16 @@ fc00:1234:4::/64 dev eth2 metric 1024 pref medium
 fc00:1234:ffff::/64 dev tun0 proto kernel metric 256 pref medium
 fe80::/64 dev eth0 proto kernel metric 256 pref medium
 fe80::/64 dev tun0 proto kernel metric 256 pref medium
+
+
+
+
+Erreur: [Errno 32] Broken pipe
+
+debian-tp@VM1:/vagrant$ sudo python3 client.py 172.16.2.163
+Connexion au serveur 172.16.2.163...
+Connexion au serveur 172.16.2.163...
+Connecté à 172.16.2.163:123
+Erreur: [Errno 32] Broken pipe
+
  

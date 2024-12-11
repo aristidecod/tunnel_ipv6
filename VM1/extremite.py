@@ -1,15 +1,14 @@
 import socket
 import sys
 import select
-
 import os
 import fcntl
 import struct
 
 def ext_out(port=123, tun_name='tun0'):
     """
-    Crée un serveur qui écoute sur le port spécifié et redirige 
-    les données reçues vers l'interface tun spécifiée
+    Crée un serveur qui écoute sur le port spécifié et gère
+    la communication bidirectionnelle entre le client TCP et l'interface tun
     """
     # Ouvrir et configurer tun0
     TUNSETIFF = 0x400454ca
@@ -34,20 +33,36 @@ def ext_out(port=123, tun_name='tun0'):
         
         try:
             while True:
-                # Recevoir les données du client
-                data = client.recv(4096)
-                if not data:
-                    break
-                # Écrire directement dans tun0
-                os.write(tun, data)
+                # Attendre des données soit du client soit de tun0
+                readable, _, _ = select.select([client, tun], [], [])
+                
+                for fd in readable:
+                    if fd is client:
+                        # Données venant du client TCP
+                        data = client.recv(4096)
+                        if not data:
+                            raise Exception("Client déconnecté")
+                        # Écrire vers tun0
+                        os.write(tun, data)
+                    
+                    if fd is tun:
+                        # Données venant de tun0
+                        data = os.read(tun, 4096)
+                        if not data:
+                            continue
+                        # Envoyer au client TCP
+                        client.send(data)
+                        
         except Exception as e:
             print(f"Erreur: {e}", file=sys.stderr)
         finally:
             client.close()
+            print(f"Connexion fermée avec {addr}", file=sys.stderr)
+            
             
 def ext_in(host, port=123, tun_name='tun0'):
     """
-    Ouvre une connexion TCP et lit le trafic de tun0 pour l'envoyer via la socket
+    Ouvre une connexion TCP et gère le trafic bidirectionnel entre tun0 et le serveur
     """
     # Ouvrir et configurer tun0
     TUNSETIFF = 0x400454ca
@@ -67,12 +82,25 @@ def ext_in(host, port=123, tun_name='tun0'):
         print(f"Connecté à {host}:{port}", file=sys.stderr)
         
         while True:
-            # Lire les paquets directement depuis tun0
-            data = os.read(tun, 4096)
-            if not data:
-                break
-            # Envoyer les paquets au serveur
-            sock.sendall(data)
+            # Attendre des données soit de tun0 soit du serveur
+            readable, _, _ = select.select([tun, sock], [], [])
+            
+            for fd in readable:
+                if fd is tun:
+                    # Données venant de tun0
+                    data = os.read(tun, 4096)
+                    if not data:
+                        continue
+                    # Envoyer au serveur
+                    sock.sendall(data)
+                
+                if fd is sock:
+                    # Données venant du serveur
+                    data = sock.recv(4096)
+                    if not data:
+                        raise Exception("Serveur déconnecté")
+                    # Écrire vers tun0
+                    os.write(tun, data)
             
     except Exception as e:
         print(f"Erreur: {e}", file=sys.stderr)
