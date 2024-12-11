@@ -25,5 +25,11 @@ eth1:
     - ipv6ipaddr: fc00:1234:4::36
     - ipv6netmask: 64
 
-
-
+## Configuration des routes IPv6
+routes_ipv6:
+  network.routes:
+    - name: eth1
+    - routes:
+      - name: VM1_network
+        ipaddr: fc00:1234:3::/64
+        gateway: fc00:1234:4::3
