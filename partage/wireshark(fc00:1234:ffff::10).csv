@@ -1,6 +1,0 @@
-"No.","Time","Source","Destination","Protocol","Length","Info"
-"1","0.000000000","fc00:1234:ffff::1","fc00:1234:ffff::10","ICMPv6","104","Echo (ping) request id=0x4346, seq=1, hop limit=64 (no response found!)"
-"2","1.021642398","fc00:1234:ffff::1","fc00:1234:ffff::10","ICMPv6","104","Echo (ping) request id=0x4346, seq=2, hop limit=64 (no response found!)"
-"3","2.046718094","fc00:1234:ffff::1","fc00:1234:ffff::10","ICMPv6","104","Echo (ping) request id=0x4346, seq=3, hop limit=64 (no response found!)"
-"4","3.069658537","fc00:1234:ffff::1","fc00:1234:ffff::10","ICMPv6","104","Echo (ping) request id=0x4346, seq=4, hop limit=64 (no response found!)"
-"5","117.149490066","fe80::cd3c:d961:831:20ca","ff02::2","ICMPv6","48","Router Solicitation"
